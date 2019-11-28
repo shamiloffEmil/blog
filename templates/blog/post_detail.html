@@ -1,0 +1,57 @@
+{% extends 'blog/base.html' %}
+
+{% block content %}
+<div class="post">
+    <h1>{{ post.author }}</h1>
+    {{user.id}}
+    {{post.author.id}}
+
+    {% if user.is_authenticated %}
+    {% if post.author == user %}
+
+    {% endif %}
+    {% endif %}
+
+    <p>{{ post.text|linebreaks }}</p>
+    {% if post.published_date %}
+    {{ post.published_date }}
+    {% else %}
+    <a class="btn btn-default" href="{% url 'blog.views.post_publish' pk=post.pk %}">Publish</a>
+    <a class="btn btn-default" href="{% url 'post_remove' pk=post.pk %}"><span class="glyphicon glyphicon-remove"></span></a>
+    {% endif %}
+    <a class="btn btn-default" href="{% url 'post_edit' pk=post.pk %}"><span class="glyphicon glyphicon-pencil"></span></a>
+</div>
+
+<hr>
+
+<div class="likes">
+    Likes: {{ post.likes.count }}
+    {% for like in post.likes.all %}
+    <p>{{ like.like}}/100</p>
+    {% endfor %}
+    Средний рейтинг читателелей : {{avLike}}
+</div>
+<a class="btn btn-default" href="{% url 'add_like_to_post' pk=post.pk %}">Нравится</a>
+<a class="btn btn-default" href="{% url 'add_comment_to_post' pk=post.pk %}">Новый комментарий</a>
+<h1><p>Комментарии.</p></h1>
+{% for comment in post.comments.all %}
+{% if user.is_authenticated or comment.approved_comment %}
+<div class="comment">
+    <div class="date">
+        {{ comment.created_date }}
+        {% if not comment.approved_comment %}
+        <a class="btn btn-default" href="{% url 'comment_remove' pk=comment.pk %}"><span
+                class="glyphicon glyphicon-remove"></span></a>
+        <a class="btn btn-default" href="{% url 'comment_approve' pk=comment.pk %}"><span
+                class="glyphicon glyphicon-ok"></span></a>
+        {% endif %}
+    </div>
+    <strong>Пользователь:{{ comment.author }}</strong>
+    <p>{{ comment.text|linebreaks }}</p>
+</div>
+
+{% endif %}
+{% empty %}
+<p>Комментариев пока еще нет :(</p>
+{% endfor %}
+{% endblock %}

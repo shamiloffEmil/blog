@@ -1,0 +1,10 @@
+{% extends 'twit/base.html' %}
+
+{% block content %}
+    <h1>New reg</h1>
+    <form method="POST" action="/auth/register/" class="post-form">
+	{% csrf_token %}
+        {{ form }}
+        <button type="submit" class="save btn btn-default">Reg</button>
+    </form>
+{% endblock %}

@@ -1,0 +1,16 @@
+﻿{% extends 'blog/base.html' %}
+
+{% block content %}
+    <h1>О пользователе</h1>
+   <h2>{{ user.get_full_name }}</h2>
+	<ul>
+  <li>1: {{ user.username  }}</li>
+		<li>2: {{ user.last_name}}</li>
+		<li>3: {{ user.first_name}}</li>
+		<li>4 {{ user.email }}</li>
+		<li>5 {{ user.profile.age }}</li>
+		<li>6 {{ user.profile.city }}</li>
+		<li>7 {{ user.profile.inter }}</li>
+
+	</ul>
+{% endblock %}

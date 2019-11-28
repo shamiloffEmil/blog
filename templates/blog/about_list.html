@@ -1,0 +1,15 @@
+﻿{% extends 'blog/base.html' %}
+
+{% block content %}
+    <h1>О пользователе</h1>
+    <form method="POST" class="post-form">{% csrf_token %}
+        <p>Никнейм - {{ user.username }}<br>
+		Имя - {{ user.first_name }}<br>
+		Фамилия - {{ user.last_name }}<br>
+		Почта - {{ user.email }}<br>
+		Возраст - {{ user.profile.age }}<br>
+		Город - {{ user.profile.city }}<br>
+		Интересы - {{ user.profile.inter }}<p>
+		{{ form.as_p }}
+	</form>
+{% endblock %}
