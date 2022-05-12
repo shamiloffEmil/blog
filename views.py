@@ -3,7 +3,8 @@ from statistics import median
 from django.contrib import auth, messages
 from django.contrib.auth.forms import UserCreationForm
 from django.db import transaction
-from django.shortcuts import render, get_object_or_404, render_to_response, get_list_or_404
+from django.http import HttpResponse
+from django.shortcuts import render, get_object_or_404, get_list_or_404
 from django.template.context_processors import csrf
 from django.utils import timezone
 from .forms import PostForm, DscForm, LikeForm, UserForm , ProfileForm  ,CommentForm
@@ -11,7 +12,8 @@ from .models import Post, Dsc, Like, Profile ,Comment
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
 from django.contrib.auth.models import User
-
+from django.contrib.auth import authenticate, login
+from .forms import LoginForm
 
 def post_list(request):
     posts = Post.objects.all()
@@ -156,24 +158,41 @@ def about_new(request, pk):
 
 
 
-# @login_required
-# @transaction.atomic
-# def update_profile(request,pk):
-#     if request.method == 'POST':
-#         user_form = UserForm(request.POST, instance=request.user)
-#         profile_form = ProfileForm(request.POST, instance=request.user.profile)
-#         if user_form.is_valid() and profile_form.is_valid():
-#             user_form.save()
-#             profile_form.save()
-#             messages.success(request, ('Ваш профиль был успешно обновлен!'))
-#             return redirect('settings:profile')
-#         else:
-#             messages.error(request, ('Пожалуйста, исправьте ошибки.'))
-#     else:
-#         user_form = UserForm(instance=request.user)
-#         profile_form = ProfileForm(instance=request.user.profile)
-#     return render(request, 'profiles/profile.html', {
-#         'user_form': user_form,
-#         'profile_form': profile_form
-#     })
+@login_required
+@transaction.atomic
+def update_profile(request,pk):
+     if request.method == 'POST':
+         user_form = UserForm(request.POST, instance=request.user)
+         profile_form = ProfileForm(request.POST, instance=request.user.profile)
+         if user_form.is_valid() and profile_form.is_valid():
+             user_form.save()
+             profile_form.save()
+             messages.success(request, ('Ваш профиль был успешно обновлен!'))
+             return redirect('settings:profile')
+         else:
+             messages.error(request, ('Пожалуйста, исправьте ошибки.'))
+     else:
+         user_form = UserForm(instance=request.user)
+         profile_form = ProfileForm(instance=request.user.profile)
+     return render(request, 'profiles/profile.html', {
+         'user_form': user_form,
+         'profile_form': profile_form
+     })
 
+def user_login(request):
+    if request.method == 'POST':
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            cd = form.cleaned_data
+            user = authenticate(username=cd['username'], password=cd['password'])
+            if user is not None:
+                if user.is_active:
+                    login(request, user)
+                    return HttpResponse('Authenticated successfully')
+                else:
+                    return HttpResponse('Disabled account')
+            else:
+                return HttpResponse('Invalid login')
+    else:
+        form = LoginForm()
+    return render(request, 'blog/login2.html', {'form': form})
